@@ -1,2 +1,2 @@
 # Qt_PuzzleGame
-a simple puzzle game develop by Qt
+a simple puzzle game develop via Qt
