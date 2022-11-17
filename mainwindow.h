@@ -16,11 +16,14 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    PhotoPiece * btnArry[3][3];
+    PhotoPiece * photoArray[3][3];
+
+    QString strPhoto = "123456780";
 
     bool ifMove(PhotoPiece * );
 
-    void moveBtn(PhotoPiece *);
+    void movePhoto(PhotoPiece *);
+    void random();
 
 private:
     Ui::MainWindow *ui;

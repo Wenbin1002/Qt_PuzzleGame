@@ -12,9 +12,8 @@ public:
     QString imgPath;
     int photoNum;
     int posX,posY;
-    bool isMovable = false;
 
-    void btnSwap(PhotoPiece * );
+    void photoSwap(PhotoPiece * );
 
 signals:
 

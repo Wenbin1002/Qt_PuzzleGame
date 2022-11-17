@@ -10,7 +10,8 @@ PhotoPiece::PhotoPiece(QString img)
     setIconSize(QSize(148,148));
 }
 
-void PhotoPiece::btnSwap(PhotoPiece * btn)
+//exchange photo
+void PhotoPiece::photoSwap(PhotoPiece * btn)
 {
     qSwap(this->imgPath,btn->imgPath);
     qSwap(this->photoNum,btn->photoNum);
