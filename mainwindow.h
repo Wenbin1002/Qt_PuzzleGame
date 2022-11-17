@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
+#include "photopiece.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,6 +15,12 @@ class MainWindow : public QWidget
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    PhotoPiece * btnArry[3][3];
+
+    bool ifMove(PhotoPiece * );
+
+    void moveBtn(PhotoPiece *);
 
 private:
     Ui::MainWindow *ui;
