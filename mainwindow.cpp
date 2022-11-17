@@ -2,11 +2,18 @@
 #include "ui_mainwindow.h"
 #include <QLabel>
 #include <QDebug>
-#include <QtAlgorithms>
 #include <QtGlobal>
+#include <QHash>
+#include <QQueue>
+#include <QtAlgorithms>
+#include <QPair>
+#include <QTimer>
+#include <QMessageBox>
+
 
 int dx[] = {1,-1,0,0};
 int dy[] = {0,0,1,-1};
+QChar op[] = {'d','u','r','l'};
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
@@ -16,6 +23,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowIcon(QIcon(":/res/icon.jpg"));
     setWindowTitle("Puzzle");
+
+    //ui->groupBox->setStyleSheet("QGroupBox{border:none}");
+    ui->groupBox->setStyleSheet(QObject::tr("#groupBox{border: 0px solid;}"));
 
     //set puzzle default position
     for(int i=0;i<9;i++)
@@ -41,6 +51,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->randomBtn,&QPushButton::clicked,[=](){
         random();
+    });
+
+    connect(ui->solveBtn,&QPushButton::clicked,[=](){
+        solve(strPhoto);
+    });
+
+    connect(ui->showBtn,&QPushButton::clicked,[=](){
+        showSolution();
     });
 }
 
@@ -79,6 +97,9 @@ void MainWindow::movePhoto(PhotoPiece * pht)
 
         if(photoArray[x][y]->photoNum == 0)
         {
+            //Record the position of the blank block
+            row = pht->posX;
+            cl = pht->posY;
 
             QString str = QString::number(pht->photoNum);
             strPhoto.replace(str,"@");
@@ -109,4 +130,128 @@ void MainWindow::random()
         i = x;
         j = y;
     }
+}
+
+// A*
+void MainWindow::solve(QString start)
+{
+    if(start == strStd)
+    {
+        QMessageBox::warning(this, tr("Erro"), tr("Please scramble the picture first"));
+        return;
+    }
+
+    answer = "";
+    QString end = "123456780";
+    QHash<QString,int> dist;
+    QHash<QString,QPair<QString,QChar> > prev;
+    QVector<QPair<int,QString> > heap;
+
+    heap.append({f(start),start});
+    dist[start] = 0;
+
+    while(heap.size())
+    {
+        auto t = heap[0];
+        heap.pop_front();
+
+        std::sort(heap.begin(),heap.end());
+
+        QString state = t.second;
+
+        if(state == end) break;
+
+        int step = dist[state];
+        int x,y;
+
+        for(int i=0;i<state.size();i++)
+            if(state[i]== '0')
+            {
+                x = i/3;
+                y = i%3;
+                break;
+            }
+
+        QString source = state;
+
+        for(int i=0;i<4;i++)
+        {
+            int a = x + dx[i],b = y + dy[i];
+            if(a <0 || a==3 || b<0 || b==3) continue;
+
+            qSwap(state[x*3 + y],state[a*3 + b]);
+            if(!dist.count(state) || dist[state] > step + 1)
+            {
+                dist[state] = step + 1;
+                prev[state] = {source,op[i]};
+                heap.push_back({dist[state] + f(state),state});
+            }
+            qSwap(state[x*3 + y],state[a*3 + b]);
+        }
+    }
+//urddluurrdd
+    while(end != start)
+    {
+        answer += prev[end].second;
+        end = prev[end].first;
+    }
+    qDebug() << answer;
+    std::reverse(answer.begin(),answer.end());
+    qDebug() << answer;
+    QMessageBox::information(this, tr("info"), tr("Succeed!"));
+    isSolved = true;
+}
+
+//Compute the sum of the Manhattan distances of each number to its standard location
+int MainWindow::f(QString state)
+{
+    int res = 0;
+    for (int i = 0; i < state.size(); i ++ )
+        if (state[i] != '0')
+        {
+           int t = state[i].toLatin1() - '1';
+           res += abs(i / 3 - t / 3) + abs(i % 3 - t % 3);
+        }
+
+    return res;
+}
+
+//Show problem-solving steps
+void MainWindow::showSolution()
+{
+    qDebug() << "show function";
+
+    if(isSolved == false)
+    {
+        qDebug() << "you haven't solve";
+        QMessageBox::warning(this, tr("Erro"), tr("Please solve first!"));
+        return;
+    }
+    QTimer * timer = new QTimer(this);
+    static int nowStep = 0;
+
+    connect(timer,&QTimer::timeout,[=](){
+        solutionStep(nowStep++);
+
+        if(strPhoto == strStd)
+        {
+            QMessageBox::information(this, tr("info"), tr("Succeed!"));
+            nowStep = 0;
+            timer->stop();
+        }
+    });
+
+    timer->start(300);
+
+    isSolved = false;
+}
+
+void MainWindow::solutionStep(int nowStep)
+{
+    char opt = answer[nowStep].toLatin1();
+
+    if(opt == 'u') movePhoto(photoArray[row-1][cl]);
+    if(opt == 'd') movePhoto(photoArray[row+1][cl]);
+    if(opt == 'l') movePhoto(photoArray[row][cl-1]);
+    if(opt == 'r') movePhoto(photoArray[row][cl+1]);
 }

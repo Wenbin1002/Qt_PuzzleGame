@@ -18,12 +18,23 @@ public:
 
     PhotoPiece * photoArray[3][3];
 
+    QString strStd = "123456780";
     QString strPhoto = "123456780";
+    QString answer;
+
+    int row = 2,cl = 2;
 
     bool ifMove(PhotoPiece * );
 
     void movePhoto(PhotoPiece *);
     void random();
+    void solve(QString start);
+    int f(QString state);
+    void showSolution();
+    void solutionStep(int nowStep);
+
+    bool isSolved = false;
+
 
 private:
     Ui::MainWindow *ui;
