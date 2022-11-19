@@ -113,6 +113,11 @@ void MainWindow::movePhoto(PhotoPiece * pht)
 
         }
     }
+
+    if(strPhoto == strStd)
+    {
+        QMessageBox::information(this, tr("info"), tr("Succeed!"));
+    }
 }
 
 void MainWindow::random()
@@ -235,7 +240,6 @@ void MainWindow::showSolution()
 
         if(strPhoto == strStd)
         {
-            QMessageBox::information(this, tr("info"), tr("Succeed!"));
             nowStep = 0;
             timer->stop();
         }
