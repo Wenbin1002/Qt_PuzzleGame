@@ -224,8 +224,6 @@ int MainWindow::f(QString state)
 //Show problem-solving steps
 void MainWindow::showSolution()
 {
-    qDebug() << "show function";
-
     if(isSolved == false)
     {
         qDebug() << "you haven't solve";
